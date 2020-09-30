@@ -1,67 +1,66 @@
 package com.training;
 
+import com.training.domain.Bet;
 import com.training.domain.Horse;
+import com.training.domain.InvalidBetTypeException;
 import com.training.domain.Race;
-import com.training.services.EmulationService;
-import com.training.services.EmulationServiceImpl;
-import com.training.services.RaceService;
-import com.training.services.RaceServiceImpl;
-import com.training.services.HorseService;
-import com.training.services.HorseServiceImp;
+import com.training.services.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.util.List;
 
 public class Main {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) {
         ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
-        Race upcomingRace = announceUpcomingRace(context);
-        String bet;
+        HorseService horseService = context.getBean(HorseServiceImp.class);
 
+        List<Horse> horses;
         try {
-            bet = readBetFromConsole();
-        } catch (IOException e) {
-            log.error(String.format("Failed to read your bet: %s", e.getMessage()));
+            horses = horseService.readHorses("src/main/resources/horses.yml");
+        } catch(FileNotFoundException e) {
+            log.error(String.format("Horses file not found: %s", e.getMessage()));
             return;
         }
 
-        Horse horseWinner = emulateRace(context, upcomingRace);
-        checkBet(context, horseWinner, bet);
+        Race race = new Race(horses);
+        printRaceInfo(context, race);
+
+        BetService betService = context.getBean(BetServiceImpl.class);
+        Bet bet;
+        try {
+            bet = betService.readBetFromConsole();
+        } catch(IOException e) {
+            log.error(String.format("Failed to read your bet: %s", e.getMessage()));
+            return;
+        } catch(InvalidBetTypeException e) {
+            log.error(e.getMessage());
+            return;
+        }
+
+        Horse winner = startRace(context, race);
+        checkBet(betService, bet, winner);
     }
 
-    private static String readBetFromConsole() throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-
-        System.out.print("Enter horse name, breed or rider's name to make a bet:");
-
-        return reader.readLine().trim().toLowerCase();
-    }
-
-    private static Race announceUpcomingRace(ApplicationContext context) {
+    private static void printRaceInfo(ApplicationContext context, Race race) {
         RaceService raceService = context.getBean(RaceServiceImpl.class);
-        Race upcomingRace = raceService.getRace();
-        raceService.printRaceInfo(upcomingRace);
-
-        return upcomingRace;
+        raceService.printRaceInfo(race);
     }
 
-    private static Horse emulateRace(ApplicationContext context, Race race) {
+    private static Horse startRace(ApplicationContext context, Race race) {
         EmulationService emulationService = context.getBean(EmulationServiceImpl.class);
         return emulationService.emulateRace(race);
     }
 
-    private static void checkBet(ApplicationContext context, Horse winner, String bet) {
-        HorseService horseService = context.getBean(HorseServiceImp.class);
-
-        if (horseService.checkBetMatch(winner, bet)) {
+    private static void checkBet(BetService betService, Bet bet, Horse winner) {
+        if (betService.hasWon(bet, winner)) {
             log.info("Congrats you won!");
         } else {
             log.info("Better luck next time!");

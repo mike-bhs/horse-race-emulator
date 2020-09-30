@@ -1,0 +1,29 @@
+horses:
+  - name: Lightning
+    breed: arabian
+    rider:
+      name: John
+  - name: King
+    breed: morgan
+    rider:
+      name: Andrew
+  - name: Spark
+    breed: morgan
+    rider:
+      name: Adam
+  - name: Lucky
+    breed: standardbred
+    rider:
+      name: Bruce
+  - name: Spike
+    breed: quarter
+    rider:
+      name: George
+  - name: Thunder
+    breed: arabian
+    rider:
+      name: Thomas
+  - name: Storm
+    breed: quarter
+    rider:
+      name: James

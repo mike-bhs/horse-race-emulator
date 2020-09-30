@@ -38,10 +38,10 @@ public class EmulationServiceImpl implements EmulationService {
     }
 
     private void announceWinner(Horse horse) {
-        String horseNameBreed = String.format("%s (%s)", horse.getName(), horse.getBreed());
+        String horseNameBreed = String.format("%s of breed %s", horse.getName(), horse.getBreed().toString().toLowerCase());
         String riderName = horse.getRider().getName();
 
-        log.info(String.format("With insignificant advantage %s with rider %s wins!!!", horseNameBreed, riderName));
+        log.info(String.format("With insignificant advantage horse %s with rider %s wins!!!", horseNameBreed, riderName));
     }
 
     private Horse pickWinner(Race race) {

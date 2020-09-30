@@ -4,11 +4,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class Horse {
+public class Bet {
     @Getter
-    private final String name;
+    private final String value;
     @Getter
-    private final Breed breed;
-    @Getter
-    private final Rider rider;
+    private final BetType type;
 }

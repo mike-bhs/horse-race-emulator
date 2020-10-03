@@ -37,17 +37,17 @@ public class BetServiceImpl implements BetService {
 
         switch(bet.getType()) {
             case BREED:
-                if (bet.getValue().equals(winner.getBreed().toString())) {
+                if (bet.getValue().equalsIgnoreCase(winner.getBreed().toString())) {
                     result = true;
                 }
                 break;
             case HORSE:
-                if (bet.getValue().equals(winner.getName())) {
+                if (bet.getValue().equalsIgnoreCase(winner.getName())) {
                     result = true;
                 }
                 break;
             case RIDER:
-                if (bet.getValue().equals(winner.getRider().getName())) {
+                if (bet.getValue().equalsIgnoreCase(winner.getRider().getName())) {
                     result = true;
                 }
                 break;
